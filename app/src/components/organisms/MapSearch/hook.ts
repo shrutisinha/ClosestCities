@@ -75,17 +75,18 @@ export const useMapSearch = () => {
     const handleCitySelect = (e) => {
         setCity(e);
         console.log(e)
-
-        getCity(e.id)
-            .then(res => {
-                if (res && res.data && res.data.location) {
-                    const loc = res.data.location;
-                    setSelectedLocation({
-                        ...loc,
-                        name: res.data.name
-                    })
-                }
-            });
+        if (e) {
+            getCity(e.id)
+                .then(res => {
+                    if (res && res.data && res.data.location) {
+                        const loc = res.data.location;
+                        setSelectedLocation({
+                            ...loc,
+                            name: res.data.name
+                        })
+                    }
+                });
+        }
     }
 
     return {

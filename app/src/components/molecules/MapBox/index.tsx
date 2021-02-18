@@ -36,6 +36,8 @@ const MapBox: React.FC<IMapBox> = ({
   const [lat, setLat] = React.useState(34);
   const [zoom, setZoom] = React.useState(1.5);
   const [map, setMap] = React.useState<any>(null);
+  const [selectedMarker, setSelectedMarker] = React.useState<mapboxgl.Marker>();
+  const [nearbyMarkers, setNearbyMarkers] = React.useState<mapboxgl.Marker[]>();
 
   // Initialize map when component mounts
   React.useEffect(() => {
@@ -61,29 +63,38 @@ const MapBox: React.FC<IMapBox> = ({
     return () => map.remove();
   }, []);
 
-  var selectedMarker: mapboxgl.Marker;
-  var nearbyMarkers: mapboxgl.Marker[];
-
   React.useEffect(() => {
     if (selected) {
-      selectedMarker?.remove();
-      selectedMarker = new mapboxgl.Marker({
-        color: '#0000FF',
-        draggable: false
-      }).setLngLat([selected.lon, selected.lat])
-        .addTo(map);
+      setSelectedMarker((oldState) => {
+
+        if (oldState) oldState.remove();
+
+        return new mapboxgl.Marker({
+          color: '#0000FF',
+          draggable: false
+        }).setLngLat([selected.lon, selected.lat])
+          .addTo(map);
+      })
     }
+  }, [selected]);
+
+  React.useEffect(() => {
     if (neighbours) {
-      if (nearbyMarkers) {
-        nearbyMarkers.forEach(marker => marker.remove());
-        nearbyMarkers = neighbours.map(city=>(new mapboxgl.Marker({
+      setNearbyMarkers((oldState) => {
+
+        if (oldState) oldState.forEach(marker => marker.remove());
+
+        const tempNearbyMarkers = neighbours.map(city => (new mapboxgl.Marker({
           color: '#008000',
           draggable: false
         }).setLngLat([city.lon, city.lat])));
-        nearbyMarkers.forEach(marker=>marker.addTo(map));
-      }
+
+        tempNearbyMarkers.forEach(marker => marker.addTo(map));
+        return tempNearbyMarkers;
+
+      })
     }
-  }, [selected, neighbours]);
+  }, [neighbours]);
 
   return (
     <Box minHeight="100%" width="100%" py={4} >
