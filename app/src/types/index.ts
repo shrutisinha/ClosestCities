@@ -1,6 +1,6 @@
 export interface ILocation {
-    lat: string;
-    lon: string;
+    lat: number;
+    lon: number;
 }
 
 export interface ICity {
@@ -9,10 +9,10 @@ export interface ICity {
     location?: ILocation;
     countryName?: string;
     iata?: string;
-    rank?: number;
+    rank: number;
     [key: string]: any;
 }
 
-export interface ICities {
-    [key: string]: ICity;
+export interface ILocName extends ILocation {
+    name: string;
 }

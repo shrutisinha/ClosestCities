@@ -1,14 +1,14 @@
 import React from 'react';
 import { CssBaseline, MuiThemeProvider } from '@material-ui/core';
 import theme from './core-utils/theme';
-import MapBox from './components/MapBox';
+import MapSearch from './components/organisms/MapSearch';
 
 const App: React.FC<{}> = () => {
     return (
         <MuiThemeProvider theme={theme}>
             <CssBaseline>
                 <div>
-                    <MapBox />
+                    <MapSearch />
                 </div>
             </CssBaseline>
         </MuiThemeProvider>

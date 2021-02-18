@@ -16,6 +16,7 @@
   "dependencies": {
     "@material-ui/core": "^4.11.2",
     "@material-ui/icons": "^4.11.2",
+    "@material-ui/lab": "^4.0.0-alpha.57",
     "@types/react-dom": "^16.9.8",
     "axios": "^0.21.1",
     "axios-cache-adapter": "^2.5.0",
@@ -29,16 +30,16 @@
     "@types/react": "^16.9.43",
     "@types/react-router-dom": "^5.1.6",
     "@types/webpack": "4.1.4",
+    "css-loader": "3.2.0",
+    "file-loader": "4.3.0",
     "html-webpack-plugin": "^3.0.7",
+    "style-loader": "1.0.0",
     "ts-loader": "^6.2.1",
     "typescript": "^3.4.3",
+    "url-loader": "^4.1.0",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.11.0",
-    "url-loader": "^4.1.0",
-    "file-loader": "4.3.0",
-    "style-loader": "1.0.0",
-    "css-loader": "3.2.0"
+    "webpack-dev-server": "^3.11.0"
   },
   "browserslist": [
     "last 2 Chrome versions",

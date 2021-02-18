@@ -3,7 +3,9 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import { PROPERTIES } from './config/properties';
 import controllers from './controllers';
-import { getCities1 } from './services/cities';
+import { logger } from './utils/logger';
+
+// IMPROVEMENT: Use graphql
 
 const server = express();
 
@@ -17,14 +19,20 @@ server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: true }));
 
 server.use(
+    controllers
+);
+
+server.use(
+    function (err, req, res, next) {
+        logger.error(err.stack)
+        res.status(500).send('Something broke!')
+      },
     (err: any, req: any, res: any, next: any) => {
-        console.log(req)
+        logger.log(req)
         console.error(err.stack)
         res.status(500).send('Something broke!');
         next(err);
-    },
-    controllers
-)
+    },)
 // A sample route
 server.get('/', (req, res) => res.send('Hello World!'));
 

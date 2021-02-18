@@ -1,40 +1,22 @@
 import fs from 'fs';
 import fetch from 'node-fetch';
-import { PROPERTIES } from '../../config/properties';
-import { getMockData } from '../../utils';
-import { IParam } from '../../utils/types';
-
-export async function getCities1() {
-    return new Promise((resolve, reject) => {
-        fetch(
-            PROPERTIES.DATA_URL,
-            {
-                method: 'GET',
-            }
-        )
-            .then(res => res.json())
-            .then(res => {
-                resolve(res);
-            })
-            .catch(e => {
-                reject(e.toString());
-            });
-    })
-}
+import { findClosestCity, getMockCountryWiseData, getMockData } from '../../utils';
+import { ICity, IPaginated } from '../../utils/types';
 
 export function getCities() {
-    return getMockData(PROPERTIES.DATA_PATH);
+    return getMockData();
 }
 
-export function getCity(req: IParam) {
-    const name: string = req.name || '';
+export function getCity(req: any): Promise<ICity> {
+    const id: string = req.id || '';
     return new Promise((resolve, reject) => {
-        getMockData(PROPERTIES.DATA_PATH)
-            .then((res: any) => {
-                const cityName = Object.keys(res)
-                    .find(key => key.toLowerCase() == name.toLowerCase());
-                if (cityName)
-                    resolve(res[cityName]);
+        getMockData()
+            .then((res: ICity[]) => {
+                const index = res
+                    .findIndex(city => city.id == id);
+                //Check if works without equating to zero
+                if (index >= 0 || index === 0)
+                    resolve(res[index]);
                 else reject('City not found')
             })
             .catch((e: any) => {
@@ -43,23 +25,27 @@ export function getCity(req: IParam) {
     });
 }
 
-export async function filterCities(req: IParam) {
-    const filter: string = req.name || '';
+//returns list of cities ordered by rank
+export async function filterCities(reqParam: any, body: IPaginated): Promise<ICity[]> {
+    const filter: string = reqParam.name || '';
+    //IMPROVEMENT: PAGINATION
+    const limit = body.limit || 20;
+    const offset = body.offset || 0;
     return new Promise((resolve, reject) => {
-        getMockData(PROPERTIES.DATA_PATH)
-            .then((res: any) => {
-                const filteredData: any[] = Object.keys(res)
-                    .filter(key => res[key] && res[key].name.substr(0, filter.length).toLowerCase() == filter.toLowerCase())
+        getMockData()
+            .then((res: ICity[]) => {
+                const filteredData: any[] = res
+                    .filter(city => city && city.name.substr(0, filter.length).toLowerCase() == filter.toLowerCase())
                     .sort((a, b) => {
-                        if(res[a].rank >= res[b].rank) {
-                          return 1;
+                        if (a.rank >= b.rank) {
+                            return 1;
                         } else {
-                          return -1;
+                            return -1;
                         }
-                      })
-                    .map((key) => ({
-                        id: key,
-                        name: res[key].name
+                    })
+                    .map((city) => ({
+                        id: city.id,
+                        name: city.name
                     }));
                 resolve(filteredData);
             })
@@ -69,19 +55,38 @@ export async function filterCities(req: IParam) {
     });
 }
 
-export async function findClosestCities(req: IParam) {
+export async function findClosestCities(req: any): Promise<ICity[]> {
     return new Promise((resolve, reject) => {
-        if (!req.name) {
-            reject('City name invalid');
+        if (!req.id) {
+            reject('City id invalid');
         }
 
-        const reqName: string = req.name || '';
-        getMockData(PROPERTIES.DATA_PATH)
-            .then((res: any) => {
-                const selectedCityName: any = Object.keys(res)
-                    .find(key => key.toLowerCase() == reqName.toLowerCase());
-                const selectedCity = res[selectedCityName];
-                resolve([selectedCity]);
+        const reqId: string = req.id || '';
+        getMockData()
+            .then((res: ICity[]) => {
+
+                const selectedCity: any = res
+                    .find(key => key.id == reqId);
+
+                if (!selectedCity) {
+                    reject("City not found");
+                    return
+                }
+                const selectedCountry = selectedCity.contId;
+                if (selectedCity.location) {
+                    getMockCountryWiseData()
+                        .then(data => {
+                            const countryData: ICity[] = data.hasOwnProperty(selectedCountry) && data[selectedCountry] || [];
+                            const closestCities = findClosestCity(selectedCity.id, selectedCity.location, countryData);
+                            resolve(closestCities);
+                        })
+                        .catch((e: any) => {
+                            reject(e);
+                        })
+                } else {
+                    reject("City location not defined");
+                }
+                // resolve([selectedCity]);
             })
             .catch((e: any) => {
                 reject(e);
