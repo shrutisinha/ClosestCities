@@ -24,5 +24,5 @@ export interface ICities {
 }
 
 export interface ICountryWise {
-    [key: string]: ICity[]
+    [key: string]: ICities
 }

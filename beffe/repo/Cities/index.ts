@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import citiesData from '../../mockData/cities.json';
-import { ICity, ICountryWise } from '../../utils/types';
+import { ICities, ICity, ICountryWise } from '../../utils/types';
 class Cities {
     private static instance: Cities;
     private data: ICity[];
@@ -15,14 +15,16 @@ class Cities {
         if (!Cities.instance) {
             const data: ICity[] = Object.values(citiesData);
             const countryData: ICountryWise = {};
-            for (let i = 0; i < data.length; i++) {
-                const contId = data[i].contId;
-                if(countryData.hasOwnProperty(contId)){
-                    countryData[contId].push(data[i])
+            Object.entries(citiesData).forEach(each => {
+                const contId = each[1].contId;
+                if (countryData.hasOwnProperty(contId)) {
+                    countryData[contId][each[0]] = each[1];
                 } else {
-                    countryData[contId] = [data[i]];
+                    const eachObj: ICities = {};
+                    eachObj[each[0]]=each[1];
+                    countryData[contId] = eachObj;
                 }
-            }
+            });
             Cities.instance = new Cities(data, countryData);
         }
 

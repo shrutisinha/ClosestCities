@@ -1,7 +1,8 @@
 import fs from 'fs';
 import fetch from 'node-fetch';
+import { type } from 'os';
 import { findClosestCity, getMockCountryWiseData, getMockData } from '../../utils';
-import { ICity, IPaginated } from '../../utils/types';
+import { ICities, ICity, IPaginated } from '../../utils/types';
 
 export function getCities() {
     return getMockData();
@@ -76,7 +77,7 @@ export async function findClosestCities(req: any): Promise<ICity[]> {
                 if (selectedCity.location) {
                     getMockCountryWiseData()
                         .then(data => {
-                            const countryData: ICity[] = data.hasOwnProperty(selectedCountry) && data[selectedCountry] || [];
+                            const countryData: ICities = data.hasOwnProperty(selectedCountry) && data[selectedCountry] || {};
                             const closestCities = findClosestCity(selectedCity.id, selectedCity.location, countryData);
                             resolve(closestCities);
                         })
